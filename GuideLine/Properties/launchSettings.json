@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Jikan": {
+      "commandName": "Executable",
+      "executablePath": "C:\\Users\\antho\\Documents\\GitHub\\Jikan\\TimeTracking\\bin\\Debug\\Jikan.exe"
+    }
+  }
+}

@@ -1,0 +1,84 @@
+﻿<UserControl x:Class="GuideLine.WPF.View.GuideLine_Dialog_View"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:core="clr-namespace:GuideLine.Core"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+
+    <d:UserControl.DataContext>
+        <core:GuideLineManager/>
+    </d:UserControl.DataContext>
+
+    <UserControl.Resources>
+        <Style TargetType="Path">
+            <Setter Property="Stretch" Value="Uniform" />
+            <Setter Property="Fill" Value="White" />
+            <Setter Property="Width" Value="25" />
+            <Setter Property="Margin" Value="3" />
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Margin" Value="5" />
+            <Setter Property="Height" Value="30" />
+            <Setter Property="Width" Value="100" />
+            <Setter Property="Background" Value="LightGray" />
+        </Style>
+
+        <Geometry x:Key="ChevronRight">M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z</Geometry>
+        <Geometry x:Key="ChevronLeft">M560-240 320-480l240-240 56 56-184 184 184 184-56 56Z</Geometry>
+        <Geometry x:Key="Close">m336-280 144-144 144 144 56-56-144-144 144-144-56-56-144 144-144-144-56 56 144 144-144 144 56 56ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm0-560v560-560Z</Geometry>
+
+    </UserControl.Resources>
+
+    <Grid VerticalAlignment="Center" HorizontalAlignment="Center">        
+
+        <Border x:Name="ToastBorder" Background="#FFE8EBF3" CornerRadius="5" MaxWidth="500">
+
+            <DockPanel LastChildFill="True">
+
+                <DockPanel DockPanel.Dock="Top" LastChildFill="True">
+
+                    <Button DockPanel.Dock="Right" Width="30" Height="30" Command="{Binding CloseGuideLineCommand}">
+                        <Path Data="{StaticResource Close}" Margin="6" />
+                    </Button>
+
+                    <Border DockPanel.Dock="Left" Background="#9FFF" CornerRadius="5" Margin="3,3,0,3">
+
+                        <TextBlock Text="{Binding CurrentGuideLine.CurrentStep.Title}" Foreground="#D000" FontSize="20" FontWeight="Medium" 
+                                    VerticalAlignment="Center" Margin="10,3" />
+
+                    </Border>
+                </DockPanel>
+
+
+                <!--BUTTON-->
+                <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <StackPanel Orientation="Horizontal" Margin="10,0">
+                        <Button Command="{Binding ShowPreviousGuideLineStepCommand}" Width="50">
+                            <Path Data="{StaticResource ChevronLeft}" Fill="#5000" Margin="6" />
+                        </Button>
+                        <Button Command="{Binding ShowNextGuideLineStepCommand}" Width="50">
+                            <Path Data="{StaticResource ChevronRight}" Fill="#5000" Margin="6" />
+                        </Button>
+                    </StackPanel>
+
+                    <Button Command="{Binding SkipGuideLineCommand}" Width="50">
+                        <TextBlock Text="Skip" Foreground="#D000" FontSize="15" FontWeight="Medium" />
+                    </Button>
+                </StackPanel>
+
+
+                <Border DockPanel.Dock="Top" Margin="5">
+                    <TextBlock Text="{Binding CurrentGuideLine.CurrentStep.Message}" TextWrapping="WrapWithOverflow" Foreground="#D000" FontSize="15" FontWeight="Medium" 
+                               VerticalAlignment="Center" Margin="5" />
+                </Border>
+            </DockPanel>
+
+        </Border>
+
+    </Grid>
+
+</UserControl>
+
+
