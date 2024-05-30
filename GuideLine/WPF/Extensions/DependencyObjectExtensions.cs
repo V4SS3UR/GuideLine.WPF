@@ -1,13 +1,21 @@
 ﻿using System.Windows.Media;
+
+/* Modification non fusionnée à partir du projet 'GuideLine (net461)'
+Avant :
+using System.Windows;
+Après :
+using System.Windows;
+using GuideLine;
+using GuideLine.WPF;
+using GuideLine.WPF.Extensions;
+*/
 using System.Windows;
 
-namespace GuideLine.WPF
+namespace GuideLine.WPF.Extensions
 {
     public static class DependencyObjectExtensions
     {
-        /// <summary>
-        /// Find specific child (name and type) from parent
-        /// </summary>
+
         public static T FindChild<T>(this DependencyObject parent, string childName) where T : DependencyObject
         {
             // Confirm parent and childName are valid. 
@@ -24,7 +32,7 @@ namespace GuideLine.WPF
                 if (childType == null)
                 {
                     // recursively drill down the tree
-                    foundChild = FindChild<T>(child, childName);
+                    foundChild = child.FindChild<T>(childName);
 
                     // If the child is found, break so we do not overwrite the found child. 
                     if (foundChild != null) break;
@@ -50,14 +58,51 @@ namespace GuideLine.WPF
 
             return foundChild;
         }
+        public static T FindChild<T>(this DependencyObject parent) where T : DependencyObject
+        {
+            if (parent == null) return null;
 
-        /// <summary>
-        /// Recursively finds the specified named parent in a control hierarchy
-        /// </summary>
-        /// <typeparam name="T">The type of the targeted Find</typeparam>
-        /// <param name="child">The child control to start with</param>
-        /// <param name="parentName">The name of the parent to find</param>
-        /// <returns></returns>
+            T foundChild = null;
+            int childrenCount = VisualTreeHelper.GetChildrenCount(parent);
+
+            for (int i = 0; i < childrenCount; i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                if (child is T typedChild)
+                {
+                    return typedChild;
+                }
+
+                foundChild = child.FindChild<T>();
+                if (foundChild != null) break;
+            }
+
+            return foundChild;
+        }
+        public static FrameworkElement FindChild(this DependencyObject parent, string childName)
+        {
+            if (parent == null) return null;
+
+            FrameworkElement foundChild = null;
+            int childrenCount = VisualTreeHelper.GetChildrenCount(parent);
+
+            for (int i = 0; i < childrenCount; i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                if (child is FrameworkElement frameworkElement && frameworkElement.Name == childName)
+                {
+                    return frameworkElement;
+                }
+
+                foundChild = child.FindChild(childName);
+                if (foundChild != null) break;
+            }
+
+            return foundChild;
+        }
+
+
+
         public static T FindParent<T>(this DependencyObject child, string parentName)
             where T : DependencyObject
         {
@@ -81,12 +126,11 @@ namespace GuideLine.WPF
 
             return foundParent;
         }
-
-        public static T FindParent<T>(this DependencyObject obj) where T : DependencyObject
+        public static T FindParent<T>(this DependencyObject child) where T : DependencyObject
         {
-            if (obj != null)
+            if (child != null)
             {
-                var dependObj = obj;
+                var dependObj = child;
                 do
                 {
                     dependObj = LogicalTreeHelper.GetParent(dependObj); ;
@@ -98,5 +142,26 @@ namespace GuideLine.WPF
 
             return null;
         }
+        public static FrameworkElement FindParent(this DependencyObject child, string parentName)
+        {
+            if (child == null) return null;
+
+            DependencyObject currentParent = VisualTreeHelper.GetParent(child);
+
+            while (currentParent != null)
+            {
+                if (currentParent is FrameworkElement frameworkElement && frameworkElement.Name == parentName)
+                {
+                    return frameworkElement;
+                }
+
+                currentParent = VisualTreeHelper.GetParent(currentParent);
+            }
+
+            return null;
+        }
+
+
+
     }
 }

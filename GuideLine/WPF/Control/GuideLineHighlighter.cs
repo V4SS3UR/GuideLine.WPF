@@ -1,50 +1,39 @@
 ﻿
-using System.Windows.Controls;
-using System.Windows.Media.Animation;
-using System.Windows.Media;
-using System.Windows;
-using System.Windows.Shapes;
-using GuideLine.WPF.View;
-using System.Collections.Generic;
-using System;
-using System.Linq;
+/* Modification non fusionnée à partir du projet 'GuideLine (net461)'
+Avant :
 using GuideLine.WPF;
+Après :
+using GuideLine.WPF;
+using GuideLine;
+using GuideLine.Core;
+using GuideLine.WPF.Control;
+*/
+using GuideLine.Core.Elements;
+using GuideLine.WPF.Extensions;
+using GuideLine.WPF.View;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Shapes;
 
-namespace GuideLine.Core
+namespace GuideLine.WPF.Control
 {
     public class GuideLineHighlighter : Grid
     {
-        #region Dependency Properties
-        public static readonly DependencyProperty HighlightMarginProperty = DependencyProperty.Register(nameof(HighlightMargin), typeof(double), typeof(GuideLineHighlighter), new PropertyMetadata(0.0, OnOnHighlightMarginChangedCallback));
-        private static void OnOnHighlightMarginChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        #region Dependency Properties           
+        public static readonly DependencyProperty GuideLineStepProperty = DependencyProperty.Register(nameof(GuideLineStep), typeof(GuideLineStep), typeof(GuideLineHighlighter), new PropertyMetadata(null, OnGuideLineStepChangedCallback));
+        public GuideLineStep GuideLineStep
         {
-            (d as GuideLineHighlighter)?.OnHighlightMarginChanged((double)e.NewValue);
+            get { return (GuideLineStep)GetValue(GuideLineStepProperty); }
+            set { SetValue(GuideLineStepProperty, value); }
         }
-        public double HighlightMargin
+        private static void OnGuideLineStepChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            get { return (double)GetValue(HighlightMarginProperty); }
-            set { SetValue(HighlightMarginProperty, value); }
-        }
-
-        public static readonly DependencyProperty HighlightCornerRadiusProperty = DependencyProperty.Register(nameof(HighlightCornerRadius), typeof(double), typeof(GuideLineHighlighter), new FrameworkPropertyMetadata(0.0));
-
-        public double HighlightCornerRadius
-        {
-            get { return (double)GetValue(HighlightCornerRadiusProperty); }
-            set { SetValue(HighlightCornerRadiusProperty, value); }
-        }
-
-        public static readonly DependencyProperty HighlightedUiElementsProperty = DependencyProperty.Register(nameof(HighlightedUiElements), typeof(IEnumerable<UIElement>), typeof(GuideLineHighlighter), new PropertyMetadata(null, OnHighlightedUiElementsChangedCallback));
-
-        public IEnumerable<UIElement> HighlightedUiElements
-        {
-            get { return (IEnumerable<UIElement>)GetValue(HighlightedUiElementsProperty); }
-            set { SetValue(HighlightedUiElementsProperty, value); }
-        }
-
-        private static void OnHighlightedUiElementsChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            (d as GuideLineHighlighter)?.OnHighlightedUiElementsChanged((IEnumerable<UIElement>)e.NewValue);
+            (d as GuideLineHighlighter)?.OnGuideLineStepChanged((GuideLineStep)e.NewValue);
         }
         #endregion
 
@@ -52,6 +41,11 @@ namespace GuideLine.Core
         private Grid TutorialOverlay;
         private Path OverlayPath;
         private Border InfoPanel;
+
+        private double _highlightMargin;
+        private double _highlightCornerRadius;
+        private bool _animateDialog;
+        private TimeSpan _animationDuration;
 
 
         public GuideLineHighlighter()
@@ -62,52 +56,124 @@ namespace GuideLine.Core
             SizeChanged += GuideLineHighlighter_SizeChanged;
         }
 
-        
+        public void UpdateHighlightMarginProperty(double highlightMargin)
+        {
+            _highlightMargin = highlightMargin;
+            RefreshUI();
+        }
+        public void UpdateHighlightCornerRadius(double highlightCornerRadius)
+        {
+            _highlightCornerRadius = highlightCornerRadius;
+            RefreshUI();
+        }
+        public void UpdateDialogAnimated(bool animateDialog)
+        {
+            _animateDialog = animateDialog;
+        }
+        public void UpdateDialogAnimationDuration(TimeSpan animationDuration)
+        {
+            _animationDuration = animationDuration;
+        }
+        private void RefreshUI()
+        {
+            var uiElements = GetUIElements();
+            if (uiElements != null && InfoPanel != null)
+            {
+                HighlightFeatures(uiElements);
+                PositionInfoPanel(GetMaximumCombinedBounds(uiElements));
+            }
+        }
+
 
         private void CreateTutorialOverlay()
         {
             // Create the Grid for the overlay
-            TutorialOverlay = new Grid();
+            TutorialOverlay = new Grid()
+            {
+                Name = "TutorialOverlay",
+            };
 
             // Create the Path for the overlay
             OverlayPath = new Path
             {
+                Name = "OverlayPath",
                 Fill = new SolidColorBrush(Colors.Black) { Opacity = 0.6 },
                 Stretch = Stretch.Fill,
                 Style = null
             };
 
-            OverlayPath.LayoutUpdated += OverlayPath_LayoutUpdated;
+            OverlayPath.LayoutUpdated += TutorialOverlay_LayoutUpdated;
 
             // Add the Path to the Grid
             TutorialOverlay.Children.Add(OverlayPath);
 
             // Add the TutorialOverlay to the main grid
             Children.Add(TutorialOverlay);
-        }
+        }       
         private void CreateInfoPanel()
         {
-            // Create the InfoPanel
-            InfoPanel = new Border
-            {
-                HorizontalAlignment = HorizontalAlignment.Left,
-                VerticalAlignment = VerticalAlignment.Top,
-            };
+            // Get or Create the InfoPanel
+            InfoPanel = this.FindChild<Border>("InfoPanel");
+            if (InfoPanel == null)
+            {                
+                InfoPanel = new Border
+                {
+                    Name = "InfoPanel",
+                    HorizontalAlignment = HorizontalAlignment.Left,
+                    VerticalAlignment = VerticalAlignment.Top,
+                };
+
+                // Add the InfoPanel to the Grid
+                TutorialOverlay.Children.Add(InfoPanel);
+            }
 
             InfoPanel.Child = new ContentControl()
             {
+                Name = "InfoPanelContent",
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 Content = new GuideLine_Dialog_View(),
-                DataContext = DataContext,
                 Margin = new Thickness(0),
                 Padding = new Thickness(0),
             };
-
-            // Add the InfoPanel to the Grid
-            TutorialOverlay.Children.Add(InfoPanel);
         }
 
+
+
+
+        private IEnumerable<UIElement> GetUIElements()
+        {
+            if(this.GuideLineStep == null)
+            {
+                return new List<UIElement>();
+            }
+
+            List<UIElement> uiElements = new List<UIElement>();
+
+            if (this.GuideLineStep.UiElements != null)
+            {
+                uiElements.AddRange(this.GuideLineStep.UiElements);
+            }
+
+            if (this.GuideLineStep.UiElementNames != null)
+            {
+                foreach (string elementName in this.GuideLineStep.UiElementNames)
+                {
+                    var contentAncestor = GetGuideLineViewAncestor();
+                    UIElement element = contentAncestor.FindChild(elementName);
+                    if (element != null)
+                    {
+                        uiElements.Add(element);
+                    }
+                    else
+                    {
+                        throw new Exception($"Failed to find {elementName} from the visual tree of GuideLine_View's direct ancestor");
+                    }
+                }
+            }
+
+            return uiElements;
+        }
         private void HighlightFeatures(IEnumerable<UIElement> uIElements)
         {
             double width = TutorialOverlay.ActualWidth;
@@ -126,7 +192,6 @@ namespace GuideLine.Core
             }
 
             OverlayPath.Data = geometry;
-
         }
         private RectangleGeometry GetUiElementGeometry(UIElement uIElement)
         {
@@ -134,12 +199,12 @@ namespace GuideLine.Core
 
             // Create the highlight rectangle with margin and rounded corners
             Rect highlightBounds = new Rect(
-                uiElementBounds.Left - HighlightMargin,
-                uiElementBounds.Top - HighlightMargin,
-                uiElementBounds.Width + 2 * HighlightMargin,
-                uiElementBounds.Height + 2 * HighlightMargin
+                uiElementBounds.Left - _highlightMargin,
+                uiElementBounds.Top - _highlightMargin,
+                uiElementBounds.Width + 2 * _highlightMargin,
+                uiElementBounds.Height + 2 * _highlightMargin
             );
-            RectangleGeometry highlightGeometry = new RectangleGeometry(highlightBounds, HighlightCornerRadius, HighlightCornerRadius);
+            RectangleGeometry highlightGeometry = new RectangleGeometry(highlightBounds, _highlightCornerRadius, _highlightCornerRadius);
 
             return highlightGeometry;
         }
@@ -147,7 +212,9 @@ namespace GuideLine.Core
 
         private void PositionInfoPanel(Rect highlightBounds)
         {
-            if (HighlightedUiElements == null || !HighlightedUiElements.Any())
+            var uiElements = GetUIElements();
+
+            if (uiElements == null || !uiElements.Any())
             {
                 // If there are no highlighted elements, position the InfoPanel in the center of the screen
                 InfoPanel.Margin = new Thickness((ActualWidth - InfoPanel.ActualWidth) / 2, (ActualHeight - InfoPanel.ActualHeight) / 2, 0, 0);
@@ -176,11 +243,11 @@ namespace GuideLine.Core
             {
                 From = InfoPanel.Margin,
                 To = new Thickness(finalLeft, finalTop, 0, 0),
-                Duration = new Duration(new TimeSpan(0, 0, 0, 0, 300)),
+                Duration = _animateDialog ? _animationDuration : new TimeSpan(0),
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
             };
 
-            InfoPanel.BeginAnimation(MarginProperty, animation);
+            InfoPanel.BeginAnimation(MarginProperty, animation);          
         }
         private double GetHorizontalPosition(Rect highlightBounds, double panelWidth, bool outside)
         {
@@ -190,9 +257,9 @@ namespace GuideLine.Core
             if (outside)
             {
                 //Try positioning outside the right edge of the highlight
-                if (highlightBounds.Right + HighlightMargin < ActualWidth)
+                if (highlightBounds.Right + _highlightMargin < ActualWidth)
                 {
-                    minX = highlightBounds.Right + HighlightMargin;
+                    minX = highlightBounds.Right + _highlightMargin;
                     maxX = ActualWidth - panelWidth;
 
                     if (minX >= 0 && maxX >= 0 && minX < maxX)
@@ -202,10 +269,10 @@ namespace GuideLine.Core
                 }
 
                 //Try positioning outside the left edge of the highlight
-                if (highlightBounds.Left - HighlightMargin > 0)
+                if (highlightBounds.Left - _highlightMargin > 0)
                 {
                     minX = 0;
-                    maxX = highlightBounds.Left - HighlightMargin - panelWidth;
+                    maxX = highlightBounds.Left - _highlightMargin - panelWidth;
 
                     if (minX >= 0 && maxX >= 0 && minX < maxX)
                     {
@@ -216,10 +283,10 @@ namespace GuideLine.Core
             else
             {
                 //Try positioning Inside the highlight at the right edge
-                if (highlightBounds.Right + HighlightMargin < ActualWidth)
+                if (highlightBounds.Right + _highlightMargin < ActualWidth)
                 {
-                    minX = highlightBounds.Right + HighlightMargin - panelWidth;
-                    maxX = highlightBounds.Right + HighlightMargin;
+                    minX = highlightBounds.Right + _highlightMargin - panelWidth;
+                    maxX = highlightBounds.Right + _highlightMargin;
 
                     if (minX >= 0 && maxX >= 0 && minX < maxX)
                     {
@@ -229,10 +296,10 @@ namespace GuideLine.Core
 
 
                 //Try positioning Inside the highlight at the left edge
-                if (highlightBounds.Left - HighlightMargin > 0)
+                if (highlightBounds.Left - _highlightMargin > 0)
                 {
-                    minX = highlightBounds.Left - HighlightMargin;
-                    maxX = highlightBounds.Left - HighlightMargin + panelWidth;
+                    minX = highlightBounds.Left - _highlightMargin;
+                    maxX = highlightBounds.Left - _highlightMargin + panelWidth;
 
                     if (minX >= 0 && maxX >= 0 && minX < maxX)
                     {
@@ -251,9 +318,9 @@ namespace GuideLine.Core
             if (outside)
             {
                 // Try positioning outside the bottom edge of the highlight
-                if (highlightBounds.Bottom + HighlightMargin < ActualHeight)
+                if (highlightBounds.Bottom + _highlightMargin < ActualHeight)
                 {
-                    minY = highlightBounds.Bottom + HighlightMargin;
+                    minY = highlightBounds.Bottom + _highlightMargin;
                     maxY = ActualHeight - panelHeight;
 
                     if (minY >= 0 && maxY >= 0 && minY < maxY)
@@ -263,10 +330,10 @@ namespace GuideLine.Core
                 }
 
                 // Try positioning outside the top edge of the highlight
-                if (highlightBounds.Top - HighlightMargin > 0)
+                if (highlightBounds.Top - _highlightMargin > 0)
                 {
                     minY = 0;
-                    maxY = highlightBounds.Top - HighlightMargin - panelHeight;
+                    maxY = highlightBounds.Top - _highlightMargin - panelHeight;
 
                     if (minY >= 0 && maxY >= 0 && minY < maxY)
                     {
@@ -277,10 +344,10 @@ namespace GuideLine.Core
             else
             {
                 // Try positioning inside the highlight at the bottom edge
-                if (highlightBounds.Bottom + HighlightMargin < ActualHeight)
+                if (highlightBounds.Bottom + _highlightMargin < ActualHeight)
                 {
-                    minY = highlightBounds.Bottom + HighlightMargin - panelHeight;
-                    maxY = highlightBounds.Bottom + HighlightMargin;
+                    minY = highlightBounds.Bottom + _highlightMargin - panelHeight;
+                    maxY = highlightBounds.Bottom + _highlightMargin;
 
                     if (minY >= 0 && maxY >= 0 && minY < maxY)
                     {
@@ -289,10 +356,10 @@ namespace GuideLine.Core
                 }
 
                 // Try positioning inside the highlight at the top edge
-                if (highlightBounds.Top - HighlightMargin > 0)
+                if (highlightBounds.Top - _highlightMargin > 0)
                 {
-                    minY = highlightBounds.Top - HighlightMargin;
-                    maxY = highlightBounds.Top - HighlightMargin + panelHeight;
+                    minY = highlightBounds.Top - _highlightMargin;
+                    maxY = highlightBounds.Top - _highlightMargin + panelHeight;
 
                     if (minY >= 0 && maxY >= 0 && minY < maxY)
                     {
@@ -306,14 +373,27 @@ namespace GuideLine.Core
 
 
 
-
-        private Rect GetElementBounds(UIElement element)
+        private FrameworkElement GetGuideLineViewAncestor()
         {
             GuideLine_View guideLine_View = this.FindParent<GuideLine_View>();
             var parent = VisualTreeHelper.GetParent(guideLine_View) as FrameworkElement;
-            GeneralTransform transform = element.TransformToVisual(parent);
-            Point topLeft = transform.Transform(new Point(0, 0));
-            return new Rect(topLeft, new Size(element.RenderSize.Width, element.RenderSize.Height));
+            return parent;
+        }
+        private Rect GetElementBounds(UIElement element)
+        {            
+            var parent = GetGuideLineViewAncestor();
+
+            try
+            {
+                GeneralTransform transform = element.TransformToVisual(parent);
+                Point topLeft = transform.Transform(new Point(0, 0));
+                return new Rect(topLeft, new Size(element.RenderSize.Width, element.RenderSize.Height));
+            }
+            catch (Exception ex)
+            {
+                string elementName = element.GetValue(FrameworkElement.NameProperty) as string;
+                throw new Exception($"{elementName} ({element.GetType()}), GuideLine_View :\n{ex.Message}");
+            }            
         }
         private Rect GetMaximumCombinedBounds(IEnumerable<UIElement> elements)
         {
@@ -335,41 +415,29 @@ namespace GuideLine.Core
             return combinedBounds;
         }
 
+
+
         #region event handlers
         private void GuideLineHighlighter_Loaded(object sender, RoutedEventArgs e)
         {
             CreateInfoPanel();
         }
-
         private void GuideLineHighlighter_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            if (HighlightedUiElements != null && InfoPanel != null)
-            {
-                HighlightFeatures(HighlightedUiElements);
-                PositionInfoPanel(GetMaximumCombinedBounds(HighlightedUiElements));
-            }
+            RefreshUI();
         }
-        private void OverlayPath_LayoutUpdated(object sender, EventArgs e)
+        private void TutorialOverlay_LayoutUpdated(object sender, EventArgs e)
         {
-            if (InfoPanel != null)
+            var uiElements = GetUIElements();
+            if (uiElements != null && InfoPanel != null)
             {
-                PositionInfoPanel(GetMaximumCombinedBounds(HighlightedUiElements));
+                PositionInfoPanel(GetMaximumCombinedBounds(uiElements));
             }
         }
 
-        private void OnHighlightMarginChanged(double newMargin)
+        private void OnGuideLineStepChanged(GuideLineStep guideLineStep)
         {
-            if (HighlightedUiElements != null && InfoPanel != null)
-            {
-                HighlightFeatures(HighlightedUiElements);
-            }
-        }
-        private void OnHighlightedUiElementsChanged(IEnumerable<UIElement> newElements)
-        {
-            if (newElements != null && InfoPanel != null)
-            {
-                HighlightFeatures(newElements);
-            }
+            RefreshUI();
         }
         #endregion
     }
