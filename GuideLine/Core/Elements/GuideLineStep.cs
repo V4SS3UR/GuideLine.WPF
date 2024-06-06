@@ -7,6 +7,7 @@ namespace GuideLine.Core.Elements
 {
     public class GuideLineStep
     {
+        public event Action OnStepInitialized;
         public event Action OnStepCompleted;
 
         public RelayCommand CompleteStepCommand { get; set; }
@@ -19,29 +20,53 @@ namespace GuideLine.Core.Elements
         public string Message { get; set; }
 
 
-        private GuideLineStep(string title, string message)
+        private GuideLineStep(string title, string message, Action OnStepInitializedAction = null, Action OnStepCompletedAction = null)
         {
             Title = title;
             Message = message;
+
+            if (OnStepInitializedAction != null)
+            {
+                OnStepInitialized += OnStepInitializedAction;
+            }
+
+            if (OnStepCompletedAction != null)
+            {
+                OnStepCompleted += OnStepCompletedAction;
+            }
+
             CompleteStepCommand = new RelayCommand(command => CompleteStep());
         }
 
-        public GuideLineStep(string title, string message, UIElement uiElement) : this(title,message)
+        public GuideLineStep(
+            string title, string message, UIElement uiElement, 
+            Action OnStepInitializedAction = null, Action OnStepCompletedAction = null) : this(title,message, OnStepInitializedAction, OnStepCompletedAction)
         {
             UiElements = new List<UIElement>() { uiElement };
         }
-        public GuideLineStep(string title, string message, IEnumerable<UIElement> uiElements) : this(title, message)
+        public GuideLineStep(
+            string title, string message, IEnumerable<UIElement> uiElements,
+            Action OnStepInitializedAction = null, Action OnStepCompletedAction = null) : this(title, message, OnStepInitializedAction, OnStepCompletedAction)
         {
             UiElements = new List<UIElement>(uiElements);
         }
 
-        public GuideLineStep(string title, string message, string uiElementName) : this(title, message)
+        public GuideLineStep(
+            string title, string message, string uiElementName,
+            Action OnStepInitializedAction = null, Action OnStepCompletedAction = null) : this(title, message, OnStepInitializedAction, OnStepCompletedAction)
         {
             UiElementNames = new List<string>() { uiElementName };
         }
-        public GuideLineStep(string title, string message, IEnumerable<string> uiElementNames) : this(title, message)
+        public GuideLineStep(
+            string title, string message, IEnumerable<string> uiElementNames,
+            Action OnStepInitializedAction = null, Action OnStepCompletedAction = null) : this(title, message, OnStepInitializedAction, OnStepCompletedAction)
         {
             UiElementNames = new List<string>(uiElementNames);
+        }
+
+        public void InitializeStep()
+        {
+            OnStepInitialized?.Invoke();
         }
 
         public void CompleteStep()

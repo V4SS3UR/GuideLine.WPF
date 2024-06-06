@@ -15,7 +15,17 @@ namespace GuideLine.Core.Elements
         private GuideLineStep _currentStep; public GuideLineStep CurrentStep
         {
             get { return _currentStep; }
-            set { _currentStep = value; OnPropertyChanged(); }
+            set 
+            { 
+                _currentStep = value; 
+
+                if(_currentStep != null)
+                {
+                    _currentStep.InitializeStep();
+                }
+
+                OnPropertyChanged(); 
+            }
         }
         public GuideLineStep PreviousStep
         {
@@ -51,14 +61,7 @@ namespace GuideLine.Core.Elements
 
         public GuideLineItem(IEnumerable<GuideLineStep> guideLineSteps)
         {
-            GuideLineSteps = new List<GuideLineStep>();
-
-            foreach (var step in guideLineSteps)
-            {
-                step.OnStepCompleted += () => ShowNextStep();
-            }
-
-            GuideLineSteps.AddRange(guideLineSteps);
+            GuideLineSteps = new List<GuideLineStep>(guideLineSteps);
         }
 
 
@@ -68,20 +71,10 @@ namespace GuideLine.Core.Elements
         }
         public void StopGuideLine()
         {
-            foreach (var step in GuideLineSteps)
-            {
-                step.OnStepCompleted -= () => ShowNextStep();
-            }
-
             OnGuideLineCompleted?.Invoke();
         }
         public void RollBackGuideLine()
         {
-            foreach (var step in GuideLineSteps)
-            {
-                step.OnStepCompleted -= () => ShowNextStep();
-            }
-
             OnGuideLineRollBacked?.Invoke();
         }
 
@@ -90,6 +83,7 @@ namespace GuideLine.Core.Elements
         {
             if (NextStep != null)
             {
+                CurrentStep.CompleteStep();
                 CurrentStep = NextStep;
             }
             else
