@@ -2,6 +2,7 @@ using GuideLine.WPF;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.RightsManagement;
 
 namespace GuideLine.Core.Elements
 {
@@ -15,17 +16,7 @@ namespace GuideLine.Core.Elements
         private GuideLineStep _currentStep; public GuideLineStep CurrentStep
         {
             get { return _currentStep; }
-            set 
-            { 
-                _currentStep = value; 
-
-                if(_currentStep != null)
-                {
-                    _currentStep.InitializeStep();
-                }
-
-                OnPropertyChanged(); 
-            }
+            set { _currentStep = value; OnPropertyChanged(); }
         }
         public GuideLineStep PreviousStep
         {
@@ -67,34 +58,57 @@ namespace GuideLine.Core.Elements
 
         public void StartGuideLine()
         {
-            CurrentStep = GuideLineSteps.First();
+            var step = GuideLineSteps.First();
+            step.InitializeStep();
+            CurrentStep = step;
         }
         public void StopGuideLine()
         {
+            if (CurrentStep != null)
+            {
+                CurrentStep.CompleteStep();
+            }
+
             OnGuideLineCompleted?.Invoke();
         }
         public void RollBackGuideLine()
         {
+            if (CurrentStep != null)
+            {
+                CurrentStep.StepRolledBack();
+            }
+
             OnGuideLineRollBacked?.Invoke();
         }
 
 
         public void ShowNextStep()
         {
-            if (NextStep != null)
+            if(CurrentStep != null)
             {
                 CurrentStep.CompleteStep();
+            }
+            
+            if (NextStep != null)
+            {
+                NextStep.InitializeStep();
                 CurrentStep = NextStep;
             }
             else
             {
                 StopGuideLine();
-            }
+            }                
         }
         public void ShowPreviousStep()
         {
+            if (CurrentStep != null)
+            {
+                CurrentStep.StepRolledBack();
+            }
+
             if (PreviousStep != null)
             {
+                PreviousStep.InitializeStep();
                 CurrentStep = PreviousStep;
             }
             else

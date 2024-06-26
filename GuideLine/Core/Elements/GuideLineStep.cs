@@ -9,6 +9,7 @@ namespace GuideLine.Core.Elements
     {
         public event Action OnStepInitialized;
         public event Action OnStepCompleted;
+        public event Action OnStepRolledBack;
 
         public RelayCommand CompleteStepCommand { get; set; }
 
@@ -20,7 +21,10 @@ namespace GuideLine.Core.Elements
         public string Message { get; set; }
 
 
-        private GuideLineStep(string title, string message, Action OnStepInitializedAction = null, Action OnStepCompletedAction = null)
+        public GuideLineStep(string title, string message, 
+            Action OnStepInitializedAction = null,
+            Action OnStepCompletedAction = null,
+            Action OnStepRolledBackAction = null)
         {
             Title = title;
             Message = message;
@@ -35,31 +39,44 @@ namespace GuideLine.Core.Elements
                 OnStepCompleted += OnStepCompletedAction;
             }
 
+            if (OnStepRolledBackAction != null)
+            {
+                OnStepRolledBack += OnStepRolledBackAction;
+            }
+
             CompleteStepCommand = new RelayCommand(command => CompleteStep());
         }
 
         public GuideLineStep(
             string title, string message, UIElement uiElement, 
-            Action OnStepInitializedAction = null, Action OnStepCompletedAction = null) : this(title,message, OnStepInitializedAction, OnStepCompletedAction)
+            Action OnStepInitializedAction = null, 
+            Action OnStepCompletedAction = null,
+            Action OnStepRolledBackAction = null) : this(title,message, OnStepInitializedAction, OnStepCompletedAction, OnStepRolledBackAction)
         {
             UiElements = new List<UIElement>() { uiElement };
         }
         public GuideLineStep(
             string title, string message, IEnumerable<UIElement> uiElements,
-            Action OnStepInitializedAction = null, Action OnStepCompletedAction = null) : this(title, message, OnStepInitializedAction, OnStepCompletedAction)
+            Action OnStepInitializedAction = null, 
+            Action OnStepCompletedAction = null,
+            Action OnStepRolledBackAction = null) : this(title, message, OnStepInitializedAction, OnStepCompletedAction, OnStepRolledBackAction)
         {
             UiElements = new List<UIElement>(uiElements);
         }
 
         public GuideLineStep(
             string title, string message, string uiElementName,
-            Action OnStepInitializedAction = null, Action OnStepCompletedAction = null) : this(title, message, OnStepInitializedAction, OnStepCompletedAction)
+            Action OnStepInitializedAction = null,
+            Action OnStepCompletedAction = null,
+            Action OnStepRolledBackAction = null) : this(title, message, OnStepInitializedAction, OnStepCompletedAction, OnStepRolledBackAction)
         {
             UiElementNames = new List<string>() { uiElementName };
         }
         public GuideLineStep(
             string title, string message, IEnumerable<string> uiElementNames,
-            Action OnStepInitializedAction = null, Action OnStepCompletedAction = null) : this(title, message, OnStepInitializedAction, OnStepCompletedAction)
+            Action OnStepInitializedAction = null, 
+            Action OnStepCompletedAction = null,
+            Action OnStepRolledBackAction = null) : this(title, message, OnStepInitializedAction, OnStepCompletedAction, OnStepRolledBackAction)
         {
             UiElementNames = new List<string>(uiElementNames);
         }
@@ -72,6 +89,11 @@ namespace GuideLine.Core.Elements
         public void CompleteStep()
         {
             OnStepCompleted?.Invoke();
+        }
+
+        public void StepRolledBack()
+        {
+            OnStepRolledBack?.Invoke();
         }
     }
 }

@@ -1,18 +1,9 @@
-﻿
-/* Modification non fusionnée à partir du projet 'GuideLine (net461)'
-Avant :
-using GuideLine.WPF;
-Après :
-using GuideLine.WPF;
-using GuideLine;
-using GuideLine.Core;
-using GuideLine.WPF.Control;
-*/
-using GuideLine.Core.Elements;
+﻿using GuideLine.Core.Elements;
 using GuideLine.WPF.Extensions;
 using GuideLine.WPF.View;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -98,7 +89,7 @@ namespace GuideLine.WPF.Control
             {
                 Name = "OverlayPath",
                 Fill = new SolidColorBrush(Colors.Black) { Opacity = 0.6 },
-                Stretch = Stretch.Fill,
+                Stretch = Stretch.None,
                 Style = null
             };
 
@@ -122,6 +113,7 @@ namespace GuideLine.WPF.Control
                     HorizontalAlignment = HorizontalAlignment.Left,
                     VerticalAlignment = VerticalAlignment.Top,
                 };
+                InfoPanel.Margin = new Thickness((ActualWidth - InfoPanel.ActualWidth) / 2, (ActualHeight - InfoPanel.ActualHeight) / 2, 0, 0);
 
                 // Add the InfoPanel to the Grid
                 TutorialOverlay.Children.Add(InfoPanel);
@@ -148,7 +140,7 @@ namespace GuideLine.WPF.Control
                 return new List<UIElement>();
             }
 
-            List<UIElement> uiElements = new List<UIElement>();
+            var uiElements = new List<UIElement>();
 
             if (this.GuideLineStep.UiElements != null)
             {
@@ -212,30 +204,25 @@ namespace GuideLine.WPF.Control
 
         private void PositionInfoPanel(Rect highlightBounds)
         {
-            var uiElements = GetUIElements();
-
-            if (uiElements == null || !uiElements.Any())
-            {
-                // If there are no highlighted elements, position the InfoPanel in the center of the screen
-                InfoPanel.Margin = new Thickness((ActualWidth - InfoPanel.ActualWidth) / 2, (ActualHeight - InfoPanel.ActualHeight) / 2, 0, 0);
-                return;
-            }
-
             double panelWidth = InfoPanel.ActualWidth;
             double panelHeight = InfoPanel.ActualHeight;
+            double finalLeft = (OverlayPath .ActualWidth / 2) - (InfoPanel.ActualWidth / 2);
+            double finalTop = (OverlayPath.ActualHeight / 2) - (InfoPanel.ActualHeight / 2);
 
-            //Try positioning the InfoPanel outside the right edge of the highlight
-            double finalLeft = GetHorizontalPosition(highlightBounds, panelWidth, true);
-            double finalTop;
+            if (highlightBounds != Rect.Empty)
+            {
+                //Try positioning the InfoPanel outside the right edge of the highlight
+                finalLeft = GetHorizontalPosition(highlightBounds, panelWidth, true);
 
-            if (finalLeft != -1)
-            {
-                finalTop = GetVerticalPosition(highlightBounds, panelHeight, false);
-            }
-            else
-            {
-                finalLeft = GetHorizontalPosition(highlightBounds, panelWidth, false);
-                finalTop = GetVerticalPosition(highlightBounds, panelHeight, true);
+                if (finalLeft != -1)
+                {
+                    finalTop = GetVerticalPosition(highlightBounds, panelHeight, false);
+                }
+                else
+                {
+                    finalLeft = GetHorizontalPosition(highlightBounds, panelWidth, false);
+                    finalTop = GetVerticalPosition(highlightBounds, panelHeight, true);
+                }
             }
 
             //animate the infopanel margin
@@ -429,7 +416,7 @@ namespace GuideLine.WPF.Control
         private void TutorialOverlay_LayoutUpdated(object sender, EventArgs e)
         {
             var uiElements = GetUIElements();
-            if (uiElements != null && InfoPanel != null)
+            if (InfoPanel != null)
             {
                 PositionInfoPanel(GetMaximumCombinedBounds(uiElements));
             }
