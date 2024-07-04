@@ -415,11 +415,19 @@ namespace GuideLine.WPF.Control
         }
         private void TutorialOverlay_LayoutUpdated(object sender, EventArgs e)
         {
-            var uiElements = GetUIElements();
-            if (InfoPanel != null)
+            try
             {
-                PositionInfoPanel(GetMaximumCombinedBounds(uiElements));
+                var uiElements = GetUIElements();
+                if (InfoPanel != null)
+                {
+                    PositionInfoPanel(GetMaximumCombinedBounds(uiElements));
+                }
             }
+            catch
+            {
+
+            }
+            
         }
 
         private void OnGuideLineStepChanged(GuideLineStep guideLineStep)

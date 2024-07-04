@@ -73,7 +73,7 @@ namespace GuideLine.Core
 
             ShowNextGuideLineStepCommand = new RelayCommand(
                 command => CurrentGuideLine.ShowNextStep(),
-                condition => CurrentGuideLine?.NextStep != null || NextGuideLine != null);
+                condition => true);
             ShowPreviousGuideLineStepCommand = new RelayCommand(
                 command => CurrentGuideLine.ShowPreviousStep(),
                 condition => CurrentGuideLine?.PreviousStep != null || PreviousGuideLine != null);
