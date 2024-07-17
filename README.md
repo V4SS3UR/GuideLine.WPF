@@ -125,11 +125,6 @@ Here is the default template : [Default GuideLine_Dialog_View template](https://
 
 Contributions are welcome! Please submit pull requests or open issues to discuss potential improvements.
 
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-
 ---
 
 Enhance your application’s user onboarding experience with GuideLine!
