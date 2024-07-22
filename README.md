@@ -2,14 +2,16 @@
 
 GuideLine is a powerful library for C# WPF applications that allows developers to create interactive, step-by-step tutorials. Enhance user experience by guiding users through your application with highlighted controls and explanatory dialogs.
 
+<p align="center">
+        <img src="https://github.com/user-attachments/assets/7943cfa7-eec3-4306-98f0-e3cc194cb77b" width="80%">      
+</p>
+
 ## Features
 
 - **Highlight Controls**: Draw attention to specific controls while dimming the rest of the application.
 - **Explanatory Dialogs**: Provide contextual information and instructions for each step of the tutorial.
 - **Navigation**: Easily navigate through tutorial steps with options to go to the previous step, next step, or skip the tutorial entirely.
 - **Customization**: Customize the appearance and behavior of the tutorial overlays and dialogs to fit your application’s style.
-
-# WIP !! 
 
 ## Getting Started
 
@@ -120,6 +122,10 @@ Enable or disable animations using the AnimateDialog property. You can also set 
 
 #### Dialog template
 Here is the default template : [Default GuideLine_Dialog_View template](https://github.com/V4SS3UR/GuideLine/blob/master/GuideLine/WPF/View/GuideLine_Dialog_View.xaml)
+
+<p align="center">
+        <img src="https://github.com/user-attachments/assets/92497ffe-fca8-47a7-82ae-57a095673231">      
+</p>
 
 ## Contributing
 
