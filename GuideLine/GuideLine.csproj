@@ -1,7 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0-windows;net461</TargetFrameworks>
+    <TargetFrameworks>net462;net47;net48;net5.0-windows;net6.0-windows</TargetFrameworks>
+    <AssemblyVersion>1.0.2.0</AssemblyVersion>
+    <FileVersion>$(AssemblyVersion)</FileVersion>
+    <Version>$(AssemblyVersion)</Version>
     <UseWPF>true</UseWPF>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageId>$(AssemblyName).WPF</PackageId>
@@ -12,7 +15,7 @@
     <Copyright>V4SS3UR</Copyright>
     <PackageProjectUrl>https://github.com/V4SS3UR/GuideLine.WPF</PackageProjectUrl>
     <RepositoryUrl>https://github.com/V4SS3UR/GuideLine.WPF</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <PackageTags>tutorial;tool;guide;WPF;XAML;guideline;overlay</PackageTags>
   </PropertyGroup>
-
 </Project>
