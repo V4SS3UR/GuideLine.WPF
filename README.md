@@ -22,14 +22,15 @@ GuideLine is a powerful library for C# WPF applications that allows developers t
 
 ### Installation
 
-To install GuideLine, you can download the latest release from the LINK page or clone the repository directly:
-Add the GuideLine.WPF project to your solution.
-Reference the GuideLine.WPF project in your main application project.
+Install the [GuideLine.WPF NuGet package](https://www.nuget.org/packages/GuideLine.WPF/) :
+```
+Install-Package GuideLine.WPF
+```
 
 ### Usage
 
 
-#### 1.Add the GuideLine View to Your XAML root view
+#### 1. Add the GuideLine View to Your XAML root view
 
 Include the GuideLine_View control in your main window or the appropriate user control.
 ```xml
@@ -80,7 +81,7 @@ private void MainGuideline_PreviewKeyDown(object sender, System.Windows.Input.Ke
 }
 ```
 
-#### 2.Define GuideLine Steps in the ViewModel or anywhere else
+#### 2. Define GuideLine Steps in the ViewModel or anywhere else
 
 Create instances of GuideLineStep to define each step in your guideline. Each step should specify the title, message, and the UI element to highlight (UIElement object or name).
 ```cs
