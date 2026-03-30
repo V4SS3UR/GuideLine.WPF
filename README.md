@@ -1,38 +1,51 @@
-# GuideLine: Interactive Tutorial Overlay for WPF Applications
+# GuideLine.WPF — Interactive Tutorial & Onboarding Overlay for WPF
 
-GuideLine is a powerful library for C# WPF applications that allows developers to create interactive, step-by-step tutorials. Enhance user experience by guiding users through your application with highlighted controls and explanatory dialogs.
+> **Step-by-step walkthrough overlays for WPF applications.** Highlight UI controls, dim the background, and guide your users through your app with contextual dialogs — no third-party UI framework required.
+
+[![NuGet](https://img.shields.io/nuget/v/GuideLine.WPF.svg)](https://www.nuget.org/packages/GuideLine.WPF/)
+[![License](https://img.shields.io/badge/license-BSD--3--Clause-blue.svg)](LICENSE)
 
 <p align="center">
         <img src="https://github.com/user-attachments/assets/7943cfa7-eec3-4306-98f0-e3cc194cb77b" width="80%">      
 </p>
 
+## Why GuideLine.WPF?
+
+Most WPF applications ship with no built-in user onboarding. New users struggle to discover features, and support costs rise. **GuideLine.WPF** solves this by letting you add an interactive tutorial layer directly on top of your existing UI — without rewriting a single screen.
+
+- ✅ Drop it into any existing WPF window in minutes
+- ✅ Zero dependency on third-party UI frameworks
+- ✅ Fully customizable look & feel
+- ✅ Keyboard-accessible and animation-ready
+
 ## Features
 
-- **Highlight Controls**: Draw attention to specific controls while dimming the rest of the application.
-- **Explanatory Dialogs**: Provide contextual information and instructions for each step of the tutorial.
-- **Navigation**: Easily navigate through tutorial steps with options to go to the previous step, next step, or skip the tutorial entirely.
-- **Customization**: Customize the appearance and behavior of the tutorial overlays and dialogs to fit your application’s style.
+- **🔦 Spotlight UI Elements**: Precisely highlight one or more controls (by reference or by name) while the rest of the interface is dimmed — directing the user's attention exactly where you need it.
+- **💬 Contextual Onboarding Dialogs**: Each tutorial step displays a title and message in a floating dialog, giving users clear, in-context guidance without leaving the screen.
+- **⏭️ Step Navigation**: Built-in Previous / Next / Skip controls let users move at their own pace. Arrow-key keyboard navigation is supported out of the box.
+- **🎨 Full Customization**: Control highlight corner radius, margin, background opacity, dialog animations, and animation duration. Swap in your own dialog template to match your app's design language.
 
 ## Getting Started
 
 ### Prerequisites
 
-- .NET Framework or .NET Core with WPF support.
-- Visual Studio or any compatible IDE for WPF development.
+- .NET Framework or .NET Core with WPF support
+- Visual Studio or any compatible IDE for WPF development
 
 ### Installation
 
-Install the [GuideLine.WPF NuGet package](https://www.nuget.org/packages/GuideLine.WPF/) :
+Install the [GuideLine.WPF NuGet package](https://www.nuget.org/packages/GuideLine.WPF/):
+
 ```
 Install-Package GuideLine.WPF
 ```
 
-### Usage
+## Usage
 
+### Step 1 — Add the GuideLine overlay to your XAML window
 
-#### 1. Add the GuideLine View to Your XAML root view
+Place `GuideLine_View` as the **topmost element** inside your window's root layout panel. It renders as a transparent overlay that activates only when a tutorial is running.
 
-Include the GuideLine_View control in your main window or the appropriate user control.
 ```xml
 <Window x:Class="YourNamespace.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -59,7 +72,8 @@ Include the GuideLine_View control in your main window or the appropriate user c
 </Window>
 ```
 
-Code behind :
+Add keyboard navigation support in the code-behind:
+
 ```cs
 private void MainGuideline_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
 {
@@ -81,9 +95,10 @@ private void MainGuideline_PreviewKeyDown(object sender, System.Windows.Input.Ke
 }
 ```
 
-#### 2. Define GuideLine Steps in the ViewModel or anywhere else
+### Step 2 — Define tutorial steps and start the walkthrough
 
-Create instances of GuideLineStep to define each step in your guideline. Each step should specify the title, message, and the UI element to highlight (UIElement object or name).
+Create `GuideLineStep` instances to describe each step of your tutorial. You can target UI elements by direct reference or by their `x:Name`. Group them into a `GuideLineItem` and hand them to `GuideLineManager` to orchestrate the flow.
+
 ```cs
 using GuideLine.WPF;
 
@@ -113,16 +128,22 @@ private void ShowGuide()
     guideLineManager.StartGuideLine("MainGuideline");
 }
 ```
+
 ## Customization
 
-#### Highlight Appearance
-You can customize the highlight appearance by setting the HighlightCornerRadius and HighlightMargin properties on the GuideLine_View control.
+### Highlight Appearance
 
-#### Animation
-Enable or disable animations using the AnimateDialog property. You can also set the duration of the animation using the AnimationDuration property.
+Set `HighlightCornerRadius` and `HighlightMargin` on the `GuideLine_View` control to control how the spotlight cutout looks around highlighted elements.
 
-#### Dialog template
-Here is the default template : [Default GuideLine_Dialog_View template](https://github.com/V4SS3UR/GuideLine/blob/master/GuideLine/WPF/View/GuideLine_Dialog_View.xaml)
+### Animation
+
+Set `AnimateDialog="True"` to enable smooth dialog transitions. Control the speed with `AnimationDuration` (e.g., `"0:0:0.3"` for 300 ms).
+
+### Custom Dialog Template
+
+The default dialog can be fully replaced with your own `ControlTemplate` to match your application's design system. See the default implementation as a starting point:
+
+[Default GuideLine_Dialog_View template](https://github.com/V4SS3UR/GuideLine/blob/master/GuideLine/WPF/View/GuideLine_Dialog_View.xaml)
 
 <p align="center">
         <img src="https://github.com/user-attachments/assets/92497ffe-fca8-47a7-82ae-57a095673231">      
@@ -130,8 +151,8 @@ Here is the default template : [Default GuideLine_Dialog_View template](https://
 
 ## Contributing
 
-Contributions are welcome! Please submit pull requests or open issues to discuss potential improvements.
+Contributions are welcome! Please open an issue to discuss your idea or submit a pull request directly.
 
 ---
 
-Enhance your application’s user onboarding experience with GuideLine!
+Give your WPF users the onboarding experience they deserve — with **GuideLine.WPF**.
