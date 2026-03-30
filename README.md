@@ -1,6 +1,6 @@
-# GuideLine.WPF — Interactive Tutorial & Onboarding Overlay for WPF
+# GuideLine.WPF - Interactive Tutorial & Onboarding Overlay for WPF
 
-> **Step-by-step walkthrough overlays for WPF applications.** Highlight UI controls, dim the background, and guide your users through your app with contextual dialogs — no third-party UI framework required.
+> **Step-by-step walkthrough overlays for WPF applications.** Highlight UI controls, dim the background, and guide your users through your app with contextual dialogs. No third-party UI framework required.
 
 [![NuGet](https://img.shields.io/nuget/v/GuideLine.WPF.svg)](https://www.nuget.org/packages/GuideLine.WPF/)
 [![License](https://img.shields.io/badge/license-BSD--3--Clause-blue.svg)](LICENSE)
@@ -11,7 +11,7 @@
 
 ## Why GuideLine.WPF?
 
-Most WPF applications ship with no built-in user onboarding. New users struggle to discover features, and support costs rise. **GuideLine.WPF** solves this by letting you add an interactive tutorial layer directly on top of your existing UI — without rewriting a single screen.
+Most WPF applications ship with no built-in user onboarding. New users struggle to discover features, and support costs rise. **GuideLine.WPF** solves this by letting you add an interactive tutorial layer directly on top of your existing UI, without rewriting a single screen.
 
 - ✅ Drop it into any existing WPF window in minutes
 - ✅ Zero dependency on third-party UI frameworks
@@ -20,7 +20,7 @@ Most WPF applications ship with no built-in user onboarding. New users struggle 
 
 ## Features
 
-- **🔦 Spotlight UI Elements**: Precisely highlight one or more controls (by reference or by name) while the rest of the interface is dimmed — directing the user's attention exactly where you need it.
+- **🔦 Spotlight UI Elements**: Precisely highlight one or more controls (by reference or by name) while the rest of the interface is dimmed, directing the user's attention exactly where you need it.
 - **💬 Contextual Onboarding Dialogs**: Each tutorial step displays a title and message in a floating dialog, giving users clear, in-context guidance without leaving the screen.
 - **⏭️ Step Navigation**: Built-in Previous / Next / Skip controls let users move at their own pace. Arrow-key keyboard navigation is supported out of the box.
 - **🎨 Full Customization**: Control highlight corner radius, margin, background opacity, dialog animations, and animation duration. Swap in your own dialog template to match your app's design language.
@@ -42,7 +42,7 @@ Install-Package GuideLine.WPF
 
 ## Usage
 
-### Step 1 — Add the GuideLine overlay to your XAML window
+### Step 1 - Add the GuideLine overlay to your XAML window
 
 Place `GuideLine_View` as the **topmost element** inside your window's root layout panel. It renders as a transparent overlay that activates only when a tutorial is running.
 
@@ -95,7 +95,7 @@ private void MainGuideline_PreviewKeyDown(object sender, System.Windows.Input.Ke
 }
 ```
 
-### Step 2 — Define tutorial steps and start the walkthrough
+### Step 2 - Define tutorial steps and start the walkthrough
 
 Create `GuideLineStep` instances to describe each step of your tutorial. You can target UI elements by direct reference or by their `x:Name`. Group them into a `GuideLineItem` and hand them to `GuideLineManager` to orchestrate the flow.
 
@@ -155,4 +155,4 @@ Contributions are welcome! Please open an issue to discuss your idea or submit a
 
 ---
 
-Give your WPF users the onboarding experience they deserve — with **GuideLine.WPF**.
+Give your WPF users the onboarding experience they deserve with **GuideLine.WPF**.
